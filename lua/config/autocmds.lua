@@ -61,7 +61,9 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {
   group = group,
   callback = function(event)
-    if vim.api.nvim_buf_get_name(event.buf):match("^/run/user/%d+/gvfs/ftp:") then
+    local runtime_dir = vim.env.XDG_RUNTIME_DIR
+    local mount = runtime_dir and (runtime_dir .. "/gvfs/ftp:")
+    if mount and vim.startswith(vim.api.nvim_buf_get_name(event.buf), mount) then
       vim.api.nvim_set_option_value("backupcopy", "no", { buf = event.buf })
     end
   end,
