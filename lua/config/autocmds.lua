@@ -54,3 +54,15 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.bo.syntax = "yaml"
   end,
 })
+
+-- GVFS FTP mounts here reject the copy-style backup ('E509') with 'backupcopy=auto'.
+-- 'no' uses Neovim's rename-based backup strategy; local files stay on "auto".
+-- FileReadPre is not usable here: it does not fire for a file passed as argv.
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {
+  group = group,
+  callback = function(event)
+    if vim.api.nvim_buf_get_name(event.buf):match("^/run/user/%d+/gvfs/ftp:") then
+      vim.api.nvim_set_option_value("backupcopy", "no", { buf = event.buf })
+    end
+  end,
+})
