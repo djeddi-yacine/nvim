@@ -19,6 +19,9 @@ local function statusline_highlights(colors)
     ConfigStatusEncoding = { fg = colors.lavender },
     ConfigStatusIndent = { fg = colors.teal },
     ConfigStatusPosition = { fg = colors.sapphire },
+    ConfigTablineActive = { fg = colors.base, bg = colors.blue, bold = true },
+    ConfigTablineInactive = { fg = colors.subtext1, bg = colors.mantle },
+    ConfigTablineFill = { fg = colors.overlay0, bg = colors.base },
   }
 end
 
@@ -55,6 +58,9 @@ function M.apply()
     ConfigStatusEncoding = "Special",
     ConfigStatusIndent = "Constant",
     ConfigStatusPosition = "Number",
+    ConfigTablineActive = "TabLineSel",
+    ConfigTablineInactive = "TabLine",
+    ConfigTablineFill = "TabLineFill",
   }
   for group, target in pairs(links) do
     vim.api.nvim_set_hl(0, group, { link = target, bg = "none" })

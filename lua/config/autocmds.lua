@@ -1,10 +1,19 @@
 local group = vim.api.nvim_create_augroup("NvimNext", { clear = true })
 
+-- MiniFiles clears these built-in explorer groups before the runtime creates them.
+vim.api.nvim_create_augroup("FileExplorer", { clear = false })
+vim.api.nvim_create_augroup("nvim.dir", { clear = false })
+
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = group,
   callback = function()
     (vim.hl.hl_op or vim.hl.on_yank)({ timeout = 120 })
   end,
+})
+
+vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWritePost" }, {
+  group = group,
+  command = "redrawtabline",
 })
 
 vim.api.nvim_create_autocmd("TermOpen", {

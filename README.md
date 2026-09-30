@@ -12,14 +12,13 @@ Use Neovim 0.12 or newer. Neovim 0.13 adds native multicursors; core editing, pi
 
 The theme is Catppuccin Mocha. Editor and floating-window backgrounds are transparent, and popups use sharp square borders. The Catppuccin configuration lives in `lua/config/theme.lua`; set `theme = false` in `lua/plugins/settings.lua` to use the built-in fallback.
 
-The status bar is the final terminal row, touching the terminal border. Neovim's command line is collapsed until needed; partially typed commands appear in the status bar. The status bar separates its fields with `|` and colors them with the active theme. It shows mode, Git branch and change counts, file and modified state, diagnostics, attached LSP names, filetype, encoding, indentation (`S2` means two spaces; `T4` means a four-column tab setting), and a compact `line:column` position. It omits the file's line-ending label (`unix`, `dos`, etc.). `+` is staged files, `~` is unstaged files, `?` is untracked files, and arrows show commits ahead or behind upstream. It hides less essential details in narrow windows. Git status comes from one asynchronous, cached command after launch in a repo and on save or focus; it never runs on every status bar redraw or blocks startup. Run `:ConfigGitRefresh` if you need an immediate update. Its implementation is in `lua/config/git_status.lua`; remove its `setup()` call in `init.lua` to disable it.
+The status bar is the final terminal row, touching the terminal border. Neovim's command line is collapsed until needed; partially typed commands appear in the status bar. The status bar separates its fields with `|` and colors them with the active theme. It shows mode, Git branch and change counts, file and modified state, diagnostics, attached LSP names, filetype, encoding, indentation (`S2` means two spaces; `T4` means a four-column tab setting), and a compact absolute `line:column` position. The editor uses relative line numbers; the cursor line is `0`, and the status bar shows the absolute line. It omits the file's line-ending label (`unix`, `dos`, etc.). `+` is staged files, `~` is unstaged files, `?` is untracked files, and arrows show commits ahead or behind upstream. It hides less essential details in narrow windows. Git status comes from one asynchronous, cached command after launch in a repo and on save or focus; it never runs on every status bar redraw or blocks startup. Run `:ConfigGitRefresh` if you need an immediate update. Its implementation is in `lua/config/git_status.lua`; remove its `setup()` call in `init.lua` to disable it.
 
 ## Think of it like VS Code
 
 | VS Code | Here |
 | --- | --- |
-| Explorer | `<Space>e` (mini.files) |
-| Explorer workspace in new tab | `<Space>et` |
+| Explorer in a new workspace tab | `<Space>e` (mini.files) |
 | Quick Open | `<Space>ff` (fuzzy mini.pick) |
 | Search in Files | `<Space>fg` (live ripgrep search) |
 | Open editors | `<Space>fb` or `[b` / `]b` |
@@ -42,7 +41,7 @@ Start in a project directory with `cd /path/to/project && nvim`, or open a proje
 | Find a file by fuzzy name or path | `<Space>ff`, type a few characters, then Enter |
 | Search text inside project files | `<Space>fg`, type a pattern, then Enter on a match |
 | See open files | `<Space>fb` |
-| Previous or next open buffer | `[b` or `]b` |
+| Previous or next file buffer | `[b` / `]b` |
 | Switch back to the previous file | `Ctrl-6` (standard `Ctrl-^`) |
 | Close the current file buffer | `<Space>bd` or `:bdelete` |
 
@@ -54,18 +53,18 @@ A buffer is a file; a tabpage is a workspace containing one or more windows. The
 
 | Goal | Keys or command |
 | --- | --- |
-| Open the explorer in a new workspace tab | `<Space>et` |
+| Open the explorer in a new workspace tab | `<Space>e` |
 | Open a picked file in a new tab | `<Space>ff`, then `Ctrl-T` on the result |
 | Open a picked buffer in a new tab | `<Space>fb`, then `Ctrl-T` on the result |
 | Duplicate the current buffer into a new tab | `:tab split` |
-| Open a terminal in its own tab | `<Space>tn` |
-| Open a terminal in a bottom split | `<Space>t` |
+| Open a terminal in its own tab | `<Space>t` |
 | Next / previous tab | `gt` / `gT` |
+| Next / previous tab (terminal shortcut) | `Ctrl-Shift-Right` / `Ctrl-Shift-Left` |
 | Close the current tab | `:tabclose` |
 
-`<Space>et` duplicates the current window as a new tab, then opens the explorer there. Press Enter on a file to open it in that tab; the original tab remains as it was. `<Space>fb` is still a temporary picker, while `Ctrl-T` opens the chosen buffer in its own tab.
+The tabline labels each workspace with its tab number and up to the first two letters of its current filetype, such as `1:go`, `2:lu`, or `3:c`. A `+` marks a tab with unsaved changes in any visible buffer; no marker means those buffers are saved. A tab without a filetype displays `--`. Click a tab label to switch to it. `<Space>e` duplicates the current window as a new tab, then opens the explorer there. Press Enter on a file to open it in that tab; the original tab remains as it was. `<Space>fb` is still a temporary picker, while `Ctrl-T` opens the chosen buffer in its own tab.
 
-`<Space>e` opens the file explorer at the current file. Use `j`/`k` to move, `l` to enter a directory or open a file while keeping the explorer open, `h` to go to the parent directory, Enter to open a file and close the explorer, and `Esc` to close it. `g?` shows its built-in help; `Esc` closes that help too. To create, rename, or delete files, edit their names or lines in the explorer and press `=` to review and confirm the changes. The explorer shows directories; the fuzzy picker is usually faster when you know part of a filename. In Neovim, a buffer is an open file; `:q` closes a window, while `:bdelete` removes its buffer from the open-file list.
+`<Space>e` opens the file explorer in a new tab at the current file. Starting Neovim with a directory (for example, `nvim .`) opens the explorer directly. Use `j`/`k` to move, `l` to enter a directory or open a file while keeping the explorer open, `h` to go to the parent directory, Enter to open a file and close the explorer, and `Esc` to close it. `g?` shows its built-in help; `Esc` closes that help too. To create, rename, or delete files, edit their names or lines in the explorer and press `=` to review and confirm the changes. The explorer shows directories; the fuzzy picker is usually faster when you know part of a filename. In Neovim, a buffer is an open file; `:q` closes a window, while `:bdelete` removes its buffer from the open-file list.
 
 If a buffer has unsaved edits, closing it with `<Space>bd` / `:bdelete` or exiting with `<Space>q` / `:q` asks whether to save, discard, or cancel. Switching between files keeps unsaved buffers open. The confirmation applies to standard Neovim commands too; `:q!` still explicitly discards changes.
 
@@ -92,10 +91,10 @@ The config also provides these shortcuts. Use the standard commands above whenev
 | Keys | Action |
 | --- | --- |
 | `<Space>w`, `<Space>q`, `<Space>bd` | Save, quit, delete current buffer |
-| `<Space>t`, `<Space>tn` | Open a terminal split or its own tab |
-| `<Space>et` | Open the file explorer in a new tab |
-| `[b`, `]b` | Previous, next buffer |
-| `<Space>e` | File explorer (`h` parent, `l` open, `Esc` close, `g?` help) |
+| `<Space>t` | Open a terminal in a new tab |
+| `Ctrl-PageUp`, `Ctrl-PageDown` | Scroll current buffer up or down one page |
+| `[b`, `]b` | Previous, next file buffer; skip directory and utility buffers |
+| `<Space>e` | File explorer in a new tab (`h` parent, `l` open, `Esc` close, `g?` help) |
 | `<Space>ff`, `<Space>fg`, `<Space>fb`, `<Space>fh` | Find files, search text, buffers, help |
 | `<Space>ld`, `<Space>lq`, `[d`, `]d` | Line diagnostics, all diagnostics, previous/next diagnostic |
 | `<Space>lf` | Format through the attached LSP |
@@ -106,7 +105,7 @@ Inside a picker, type to filter, Enter to open, and Escape to close. Once an LSP
 
 ## Terminal inside Neovim
 
-From Normal mode, `<Space>t` opens a disposable terminal in a 12-row bottom split; `<Space>tn` opens one in its own tab. `:terminal` opens one in the current window when you want the full view; `:vsplit | terminal` opens one beside your file. Type shell commands normally while in Terminal mode. Press `Esc Esc` to return to Normal mode (the native sequence is `Ctrl-\\` then `Ctrl-N`). From there, `Ctrl-W h/j/k/l` moves between windows, and `i` returns to the terminal's input. Use `gt` / `gT` to switch tabs. Type `exit` at the shell prompt to stop the shell. `<Space>q` or `<Space>bd` closes the terminal immediately; terminal buffers are disposable and do not ask about saving. `:q` closes only the current window. To run one shell command without a terminal buffer, use `:!command`.
+From Normal mode, `<Space>t` opens a disposable terminal in its own tab. `:terminal` opens one in the current window; `:vsplit | terminal` opens one beside your file. Type shell commands normally while in Terminal mode. Press `Esc Esc` to return to Normal mode (the native sequence is `Ctrl-\\` then `Ctrl-N`). From there, `Ctrl-W h/j/k/l` moves between windows, and `i` returns to the terminal's input. Use `gt` / `gT` or `Ctrl-Shift-Left/Right` to switch tabs. Type `exit` at the shell prompt to stop the shell. `<Space>q` or `<Space>bd` closes the terminal immediately; terminal buffers are disposable and do not ask about saving. `:q` closes only the current window. To run one shell command without a terminal buffer, use `:!command`.
 
 ## Native multicursors
 

@@ -34,9 +34,40 @@ local function join(parts)
   return table.concat(parts, "%#ConfigStatusSeparator# | ")
 end
 
-local function filename()
-  if vim.api.nvim_buf_get_name(0) == "" then return "" end
-  return "%<" .. require("mini.statusline").section_filename({ trunc_width = 80 })
+local function rendered_width(parts, prefix)
+  if #parts == 0 then return 0 end
+  return vim.api.nvim_eval_statusline((prefix or "") .. join(parts), {
+    winid = vim.api.nvim_get_current_win(),
+  }).width
+end
+
+local function filename(max_width)
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == "" or max_width < 3 then return "" end
+
+  local width = vim.api.nvim_win_get_width(0)
+  local name
+  if vim.bo.buftype == "terminal" then
+    name = vim.fn.fnamemodify(path, ":t")
+  else
+    name = vim.fn.fnamemodify(path, width < 80 and ":." or ":~:.")
+  end
+
+  local flags = (vim.bo.modified and " [+]" or "") .. (vim.bo.readonly and " [RO]" or "")
+  local name_width = max_width - vim.fn.strdisplaywidth(flags)
+  if name_width < 3 then return "" end
+
+  if vim.fn.strdisplaywidth(name) > name_width then
+    local prefix, prefix_width = "", name_width - 3
+    for index = 1, vim.fn.strchars(name) do
+      local candidate = vim.fn.strcharpart(name, 0, index)
+      if vim.fn.strdisplaywidth(candidate) > prefix_width then break end
+      prefix = candidate
+    end
+    name = prefix .. "..."
+  end
+
+  return (name .. flags):gsub("%%", "%%%%")
 end
 
 function M.active()
@@ -49,7 +80,6 @@ function M.active()
   add(left, "Git", git_status())
   add(left, "Diagnostics", statusline.section_diagnostics({ trunc_width = 80 }))
   add(left, "Lsp", lsp_names())
-  add(left, "File", filename())
 
   local right = {}
   add(right, "Search", statusline.section_searchcount({ trunc_width = 80 }))
@@ -59,6 +89,10 @@ function M.active()
   end
   add(right, "Indent", indentation())
   add(right, "Position", "%l:%c")
+
+  local width_used = rendered_width(left, "%S") + rendered_width(right)
+  local file_width = width - width_used - vim.fn.strdisplaywidth(" | ") - 1
+  add(left, "File", filename(file_width))
 
   return "%S" .. join(left) .. "%=" .. join(right)
 end

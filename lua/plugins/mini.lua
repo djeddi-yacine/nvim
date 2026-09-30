@@ -12,7 +12,10 @@ function M.setup()
     ready.pick = true
   end
   if settings.files and not ready.files then
-    require("mini.files").setup({ mappings = { close = "<Esc>", go_in_plus = "<CR>" } })
+    require("mini.files").setup({
+      mappings = { close = "<Esc>", go_in_plus = "<CR>" },
+      options = { use_as_default_explorer = true },
+    })
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "minifiles-help",
       callback = function(event)
@@ -73,10 +76,6 @@ local function open_files(path)
 end
 
 function M.files()
-  open_files(current_path())
-end
-
-function M.files_tab()
   local path = current_path()
   vim.cmd("tab split")
   open_files(path)

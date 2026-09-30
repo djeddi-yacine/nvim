@@ -1,6 +1,6 @@
 local opt = vim.opt
 
-opt.number = true
+opt.number = false
 opt.relativenumber = true
 opt.signcolumn = "yes"
 opt.cursorline = true
@@ -10,6 +10,8 @@ opt.splitbelow = true
 opt.termguicolors = true
 opt.winborder = "single"
 opt.laststatus = 3
+opt.showtabline = 1
+opt.tabline = "%!v:lua.require'config.tabline'.render()"
 opt.cmdheight = 0
 opt.showcmdloc = "statusline"
 opt.fillchars = { eob = " " }
