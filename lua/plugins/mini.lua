@@ -57,13 +57,29 @@ local function available(module)
   return false
 end
 
-function M.files()
+local function current_path()
+  local path = vim.api.nvim_buf_get_name(0)
+  return path ~= "" and path or vim.uv.cwd()
+end
+
+local function open_files(path)
   if available("files") then
-    local path = vim.api.nvim_buf_get_name(0)
-    require("mini.files").open(path ~= "" and path or vim.uv.cwd(), true)
+    require("mini.files").open(path, true)
   else
-    vim.cmd.Explore()
+    local stat = vim.uv.fs_stat(path)
+    local dir = stat and stat.type == "directory" and path or vim.fs.dirname(path)
+    vim.cmd.Explore(vim.fn.fnameescape(dir))
   end
+end
+
+function M.files()
+  open_files(current_path())
+end
+
+function M.files_tab()
+  local path = current_path()
+  vim.cmd("tab split")
+  open_files(path)
 end
 
 function M.pick_files()

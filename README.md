@@ -19,6 +19,7 @@ The status bar is the final terminal row, touching the terminal border. Neovim's
 | VS Code | Here |
 | --- | --- |
 | Explorer | `<Space>e` (mini.files) |
+| Explorer workspace in new tab | `<Space>et` |
 | Quick Open | `<Space>ff` (fuzzy mini.pick) |
 | Search in Files | `<Space>fg` (live ripgrep search) |
 | Open editors | `<Space>fb` or `[b` / `]b` |
@@ -47,6 +48,23 @@ Start in a project directory with `cd /path/to/project && nvim`, or open a proje
 
 In a picker, `Ctrl-N` / `Ctrl-P` or arrow keys move through results, `Tab` toggles a preview, and `Shift-Tab` shows picker help. Enter opens a result in the current window; `Ctrl-S`, `Ctrl-V`, and `Ctrl-T` open it in a horizontal split, vertical split, or new tab. `Esc` closes the picker. File search includes dotfiles, respects `.gitignore`, and skips the `.git` directory. Text search uses ripgrep's normal ignore rules.
 
+## Tabs as workspaces
+
+A buffer is a file; a tabpage is a workspace containing one or more windows. The same buffer can appear in more than one tab, and switching tabs does not close files. This keeps tabs useful for grouping layouts instead of requiring one tab for every open file.
+
+| Goal | Keys or command |
+| --- | --- |
+| Open the explorer in a new workspace tab | `<Space>et` |
+| Open a picked file in a new tab | `<Space>ff`, then `Ctrl-T` on the result |
+| Open a picked buffer in a new tab | `<Space>fb`, then `Ctrl-T` on the result |
+| Duplicate the current buffer into a new tab | `:tab split` |
+| Open a terminal in its own tab | `<Space>tn` |
+| Open a terminal in a bottom split | `<Space>t` |
+| Next / previous tab | `gt` / `gT` |
+| Close the current tab | `:tabclose` |
+
+`<Space>et` duplicates the current window as a new tab, then opens the explorer there. Press Enter on a file to open it in that tab; the original tab remains as it was. `<Space>fb` is still a temporary picker, while `Ctrl-T` opens the chosen buffer in its own tab.
+
 `<Space>e` opens the file explorer at the current file. Use `j`/`k` to move, `l` to enter a directory or open a file while keeping the explorer open, `h` to go to the parent directory, Enter to open a file and close the explorer, and `Esc` to close it. `g?` shows its built-in help; `Esc` closes that help too. To create, rename, or delete files, edit their names or lines in the explorer and press `=` to review and confirm the changes. The explorer shows directories; the fuzzy picker is usually faster when you know part of a filename. In Neovim, a buffer is an open file; `:q` closes a window, while `:bdelete` removes its buffer from the open-file list.
 
 If a buffer has unsaved edits, closing it with `<Space>bd` / `:bdelete` or exiting with `<Space>q` / `:q` asks whether to save, discard, or cancel. Switching between files keeps unsaved buffers open. The confirmation applies to standard Neovim commands too; `:q!` still explicitly discards changes.
@@ -74,7 +92,8 @@ The config also provides these shortcuts. Use the standard commands above whenev
 | Keys | Action |
 | --- | --- |
 | `<Space>w`, `<Space>q`, `<Space>bd` | Save, quit, delete current buffer |
-| `<Space>t` | Open a disposable terminal split |
+| `<Space>t`, `<Space>tn` | Open a terminal split or its own tab |
+| `<Space>et` | Open the file explorer in a new tab |
 | `[b`, `]b` | Previous, next buffer |
 | `<Space>e` | File explorer (`h` parent, `l` open, `Esc` close, `g?` help) |
 | `<Space>ff`, `<Space>fg`, `<Space>fb`, `<Space>fh` | Find files, search text, buffers, help |
@@ -87,7 +106,7 @@ Inside a picker, type to filter, Enter to open, and Escape to close. Once an LSP
 
 ## Terminal inside Neovim
 
-From Normal mode, `<Space>t` opens a disposable terminal in a 12-row bottom split. `:terminal` opens one in the current window when you want the full view; `:vsplit | terminal` opens one beside your file. Type shell commands normally while in Terminal mode. Press `Esc Esc` to return to Normal mode (the native sequence is `Ctrl-\\` then `Ctrl-N`). From there, `Ctrl-W h/j/k/l` moves between windows, and `i` returns to the terminal's input. Type `exit` at the shell prompt to stop the shell. `<Space>q` or `<Space>bd` closes the terminal immediately; terminal buffers are disposable and do not ask about saving. `:q` closes only the current window. To run one shell command without a terminal buffer, use `:!command`.
+From Normal mode, `<Space>t` opens a disposable terminal in a 12-row bottom split; `<Space>tn` opens one in its own tab. `:terminal` opens one in the current window when you want the full view; `:vsplit | terminal` opens one beside your file. Type shell commands normally while in Terminal mode. Press `Esc Esc` to return to Normal mode (the native sequence is `Ctrl-\\` then `Ctrl-N`). From there, `Ctrl-W h/j/k/l` moves between windows, and `i` returns to the terminal's input. Use `gt` / `gT` to switch tabs. Type `exit` at the shell prompt to stop the shell. `<Space>q` or `<Space>bd` closes the terminal immediately; terminal buffers are disposable and do not ask about saving. `:q` closes only the current window. To run one shell command without a terminal buffer, use `:!command`.
 
 ## Native multicursors
 
